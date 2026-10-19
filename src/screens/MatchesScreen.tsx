@@ -5,6 +5,7 @@ import { MatchCard } from '../components/MatchCard';
 import { StateMessage } from '../components/StateMessage';
 import { TextButton } from '../components/TextButton';
 import { UpdatedAgo } from '../components/UpdatedAgo';
+import { useFavorites } from '../hooks/useFavorites';
 import { useMatches } from '../hooks/useMatches';
 import { filterMatches, sortByStartTime, type MatchFilter } from '../utils/matches';
 
@@ -12,6 +13,7 @@ import { filterMatches, sortByStartTime, type MatchFilter } from '../utils/match
 export function MatchesScreen() {
   const { data, updatedAt, error, isLoading, reload } = useMatches();
   const [filter, setFilter] = useState<MatchFilter>('all');
+  const { favorites, isFavorite, toggle } = useFavorites();
 
   const visibleMatches = useMemo(
     () => (data ? sortByStartTime(filterMatches(data.matches, filter)) : []),
@@ -60,7 +62,11 @@ export function MatchesScreen() {
       <FlatList
         data={visibleMatches}
         keyExtractor={(match) => match.id}
-        renderItem={({ item }) => <MatchCard match={item} />}
+        renderItem={({ item }) => (
+          <MatchCard match={item} isFavorite={isFavorite(item.id)} onToggleFavorite={toggle} />
+        )}
+        // Карточки зависят от избранного, которого нет в data, — без extraData FlatList их не перерисует.
+        extraData={favorites}
         refreshing={isLoading}
         onRefresh={reload}
         style={styles.list}
