@@ -8,10 +8,10 @@ export const MATCH_FILTERS: { value: MatchFilter; label: string }[] = [
   { value: 'finished', label: 'Завершённые' },
 ];
 
-// «Предстоящие» — матчи, результат которых ещё не известен: запланированные,
-// идущие сейчас и перенесённые. Матчи с неизвестным статусом видны только во «Все».
+// «Предстоящие» — матчи, которые ещё не начались: запланированные и перенесённые.
+// Идущие сейчас и матчи с неизвестным статусом видны только во «Все».
 const STATUSES_BY_FILTER: Record<Exclude<MatchFilter, 'all'>, readonly MatchStatus[]> = {
-  upcoming: ['scheduled', 'live', 'postponed'],
+  upcoming: ['scheduled', 'postponed'],
   finished: ['finished'],
 };
 
