@@ -25,18 +25,25 @@ export function MatchCard({ match, isFavorite, onToggleFavorite }: Props) {
       </View>
 
       <View style={styles.teams}>
-        <TeamName team={match.home} align="left" />
+        <TeamName team={match.home} role="Хозяева" align="left" />
         <Text style={[styles.score, !hasScore && styles.noScore]}>{formatScore(match.score)}</Text>
-        <TeamName team={match.away} align="right" />
+        <TeamName team={match.away} role="Гости" align="right" />
       </View>
     </View>
   );
 }
 
-function TeamName({ team, align }: { team: Team; align: 'left' | 'right' }) {
+type TeamNameProps = {
+  team: Team;
+  role: string;
+  align: 'left' | 'right';
+};
+
+function TeamName({ team, role, align }: TeamNameProps) {
   const textAlign = { textAlign: align } as const;
   return (
     <View style={styles.team}>
+      <Text style={[styles.role, textAlign]}>{role}</Text>
       <Text style={[styles.teamName, textAlign]}>{team.name}</Text>
       <Text style={[styles.city, textAlign]}>{team.city}</Text>
     </View>
@@ -83,6 +90,11 @@ const styles = StyleSheet.create({
   },
   team: {
     flex: 1,
+  },
+  role: {
+    fontSize: 11,
+    color: '#9ca3af',
+    textTransform: 'uppercase',
   },
   teamName: {
     fontSize: 16,
