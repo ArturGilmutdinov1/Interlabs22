@@ -1,4 +1,25 @@
-import type { Match, Score } from '../types/match';
+import type { Match, MatchStatus, Score } from '../types/match';
+
+export type MatchFilter = 'all' | 'upcoming' | 'finished';
+
+export const MATCH_FILTERS: { value: MatchFilter; label: string }[] = [
+  { value: 'all', label: 'Все' },
+  { value: 'upcoming', label: 'Предстоящие' },
+  { value: 'finished', label: 'Завершённые' },
+];
+
+// «Предстоящие» — матчи, результат которых ещё не известен: запланированные,
+// идущие сейчас и перенесённые. Матчи с неизвестным статусом видны только во «Все».
+const STATUSES_BY_FILTER: Record<Exclude<MatchFilter, 'all'>, readonly MatchStatus[]> = {
+  upcoming: ['scheduled', 'live', 'postponed'],
+  finished: ['finished'],
+};
+
+export function filterMatches(matches: Match[], filter: MatchFilter): Match[] {
+  if (filter === 'all') return matches;
+  const statuses: readonly string[] = STATUSES_BY_FILTER[filter];
+  return matches.filter((match) => statuses.includes(match.status));
+}
 
 // По времени начала; матчи без даты — в конце, в исходном порядке.
 export function sortByStartTime(matches: Match[]): Match[] {

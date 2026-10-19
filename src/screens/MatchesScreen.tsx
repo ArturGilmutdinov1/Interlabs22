@@ -1,17 +1,22 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { FilterTabs } from '../components/FilterTabs';
 import { MatchCard } from '../components/MatchCard';
 import { StateMessage } from '../components/StateMessage';
 import { TextButton } from '../components/TextButton';
 import { UpdatedAgo } from '../components/UpdatedAgo';
 import { useMatches } from '../hooks/useMatches';
-import { sortByStartTime } from '../utils/matches';
+import { filterMatches, sortByStartTime, type MatchFilter } from '../utils/matches';
 
 // Экран «Матчи тура» — задание в README.md, часть 1.
 export function MatchesScreen() {
   const { data, updatedAt, error, isLoading, reload } = useMatches();
+  const [filter, setFilter] = useState<MatchFilter>('all');
 
-  const visibleMatches = useMemo(() => (data ? sortByStartTime(data.matches) : []), [data]);
+  const visibleMatches = useMemo(
+    () => (data ? sortByStartTime(filterMatches(data.matches, filter)) : []),
+    [data, filter],
+  );
 
   if (!data) {
     return (
@@ -50,6 +55,8 @@ export function MatchesScreen() {
         <Text style={styles.refreshError}>Не удалось обновить: {error} Показаны прошлые данные.</Text>
       ) : null}
 
+      <FilterTabs value={filter} onChange={setFilter} />
+
       <FlatList
         data={visibleMatches}
         keyExtractor={(match) => match.id}
@@ -59,10 +66,14 @@ export function MatchesScreen() {
         style={styles.list}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <StateMessage
-            title="В этом туре пока нет матчей"
-            description="Загляните позже или обновите список."
-          />
+          data.matches.length === 0 ? (
+            <StateMessage
+              title="В этом туре пока нет матчей"
+              description="Загляните позже или обновите список."
+            />
+          ) : (
+            <StateMessage title="Нет матчей в этой категории" description="Выберите другой фильтр." />
+          )
         }
       />
     </View>
